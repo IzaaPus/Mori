@@ -2,6 +2,7 @@
 
 export let CapacitorHttp = window.Capacitor?.Plugins?.CapacitorHttp;
 export let Filesystem = window.Capacitor?.Plugins?.Filesystem;
+export let FileTransfer = window.Capacitor?.Plugins?.FileTransfer;
 export let Toast = window.Capacitor?.Plugins?.Toast;
 export let Clipboard = window.Capacitor?.Plugins?.Clipboard;
 export let App = window.Capacitor?.Plugins?.App;
@@ -16,6 +17,7 @@ export function syncCapacitorPlugins() {
   if (!plugins) return;
   if (plugins.CapacitorHttp) CapacitorHttp = plugins.CapacitorHttp;
   if (plugins.Filesystem) Filesystem = plugins.Filesystem;
+  if (plugins.FileTransfer) FileTransfer = plugins.FileTransfer;
   if (plugins.Toast) Toast = plugins.Toast;
   if (plugins.Clipboard) Clipboard = plugins.Clipboard;
   if (plugins.App) App = plugins.App;
