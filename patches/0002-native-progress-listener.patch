@@ -1,0 +1,49 @@
+diff --git a/public/js/ui/nativeDownload.js b/public/js/ui/nativeDownload.js
+--- a/public/js/ui/nativeDownload.js
++++ b/public/js/ui/nativeDownload.js
+@@ -2,6 +2,7 @@ import {
+   showToast,
+   Filesystem,
++  FileTransfer,
+   requestWakeLock,
+   releaseWakeLock,
+   checkWifiOnlyGuard,
+  normalizePathInput,
+@@ -175,25 +176,29 @@ export async function startNativeDownload(
+-    // Listen for real progress if Filesystem exists
+-    if (Filesystem?.addListener) {
++    // FileTransfer is preferred on Capacitor 7; keep the legacy Filesystem
++    // progress event as a fallback for older installations.
++    const progressPlugin = FileTransfer?.addListener ? FileTransfer : Filesystem;
++    const progressEvent = progressPlugin === FileTransfer ? "progress" : "downloadProgress";
++    if (progressPlugin?.addListener) {
+       try {
+-        window._moriProgressListener = await Filesystem.addListener(
+-          "downloadProgress",
++        window._moriProgressListener = await progressPlugin.addListener(
++          progressEvent,
+           (progress) => {
+             realProgressReceived = true;
++            const downloadedBytes = Number(progress.bytes ?? progress.bytesWritten ?? 0);
+             let percentage = 0;
+             if (progress.contentLength > 0) {
+               percentage = Math.round(
+-                (progress.bytesWritten / progress.contentLength) * 100,
++                (downloadedBytes / progress.contentLength) * 100,
+               );
+-            } else if (progress.bytesWritten > 0) {
++            } else if (downloadedBytes > 0) {
+               percentage = Math.min(
+                 95,
+-                Math.round(progress.bytesWritten / 10240),
++                Math.round(downloadedBytes / 10240),
+               );
+             }
+             updateProgress(Math.min(95, percentage), "Downloading...");
+           },
+         );
+       } catch (e) {
+-        console.warn("Could not attach Filesystem progress listener:", e);
++        console.warn("Could not attach download progress listener:", e);
+       }
+     }
